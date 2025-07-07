@@ -1,0 +1,35 @@
+import yfinance as yf
+import pyttsx3
+import time
+
+stock_sym = input('What stock symbol are you choosing? ')
+
+# Setup text-to-speech
+engine = pyttsx3.init()
+engine.setProperty('rate', 150)  # Speed of speech
+
+ticker_symbol = stock_sym
+stock = yf.Ticker(ticker_symbol)
+
+last_price = None
+
+while True:
+    try:
+        data = stock.history(period="1d", interval="1d")  # fix here
+        if data.empty:
+            raise Exception("No data returned (market may be closed)") 
+
+        current_price = round(data['Close'].iloc[-1], 2)
+
+        if current_price != last_price:
+            msg = f"${current_price}"
+            print(msg)
+            engine.say(msg)
+            engine.runAndWait()
+            last_price = current_price
+
+        time.sleep(30)  # 30 seconds is more realistic for 1m interval
+
+    except Exception as e:
+        print(f"Error: {e}")
+        time.sleep(10)
