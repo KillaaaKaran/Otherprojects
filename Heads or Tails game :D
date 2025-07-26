@@ -1,0 +1,56 @@
+import time
+import random
+
+print("Welcome to the Coin Flip Game!")
+user_input = str(input("Please chosse Head or Tail: "))
+time.sleep(1)  # Wait before retrying
+if user_input.lower() == "head":
+        print("You chose Head!")
+        time.sleep(1)  # Wait before retrying
+
+if user_input.lower() == "tail":
+        print("You chose Tail!")
+        time.sleep(1)  # Wait before retrying
+
+if user_input.lower() not in ["head", "tail"]:
+        print("Invalid choice, please choose either Head or Tail.")
+        time.sleep(1)  # Wait before retrying
+
+coin_flip = random.choice(["head", "tail"])
+print(f"The coin landed on: {coin_flip}")
+
+if coin_flip == user_input.lower():
+    print("Congratulations! You guessed correctly.")
+else:
+    print("Sorry, you guessed wrong. Better luck next time!")
+    time.sleep(1)
+while True:
+    play_again = input("Do you want to play again? (yes/no): ").strip().lower()
+    if play_again == "yes":
+        user_input = str(input("Please choose Head or Tail: "))
+        time.sleep(1)  # Wait before retrying
+        if user_input.lower() == "head":
+            print("You chose Head!")
+            time.sleep(1)  # Wait before retrying
+
+        elif user_input.lower() == "tail":
+            print("You chose Tail!")
+            time.sleep(1)  # Wait before retrying
+
+        elif user_input.lower() not in ["head", "tail"]:
+            print("Invalid choice, please choose either Head or Tail.")
+            time.sleep(1)  # Wait before retrying
+
+        coin_flip = random.choice(["head", "tail"])
+        print(f"The coin landed on: {coin_flip}")
+
+        if coin_flip == user_input.lower():
+            print("Congratulations! You guessed correctly.")
+        else:
+            print("Sorry, you guessed wrong. Better luck next time!")
+            time.sleep(1)
+    elif play_again == "no":
+        print("Thank you for playing! Goodbye!")
+        break
+    else:
+        print("Invalid input, please type 'yes' or 'no'.")
