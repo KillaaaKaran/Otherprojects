@@ -1,0 +1,15 @@
+import time
+import sys
+import random
+
+print("Welcome to any number dice roller, when you are ready type an integer above one.")
+while True:
+    user_input = int(input("Type a number above one or 'exit' to quit: ").strip().lower())
+    if user_input > 1:
+        print(f"Rolling a {user_input}-sided dice...")
+        time.sleep(1)
+        result = random.randint(1, user_input)
+        print(f"You rolled a {result}!")
+    elif user_input == 'exit':
+        print("Exiting the dice roller. Goodbye!")
+        sys.exit()
