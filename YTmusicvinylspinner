@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         YouTube Music Vinyl Spinner
+// @name         YouTube Music Vinyl Spinner with central dot
 // @namespace    http://tampermonkey.net/
 // @version      3.6
 // @description  Spins album art like vinyl record with play/pause sync
