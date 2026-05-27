@@ -1,0 +1,182 @@
+// ==UserScript==
+// @name         YouTube Music Vinyl Spinner v1
+// @namespace    http://tampermonkey.net/
+// @version      2.0
+// @description  Make the album cover spin like vinyl on YouTube Music
+// @author       You
+// @match        *://music.youtube.com/*
+// @grant        none
+// ==/UserScript==
+
+(function () {
+  'use strict';
+
+  const style = document.createElement('style');
+
+  style.textContent = `
+    .vinyl-container {
+      position: relative;
+      border-radius: 50%;
+      overflow: visible;
+      display: inline-block;
+      isolation: isolate;
+    }
+
+    .vinyl-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 260%;
+      height: 260%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      z-index: -1;
+      pointer-events: none;
+
+      background: radial-gradient(circle,
+        rgba(255,255,255,0.95) 0%,
+        rgba(255,255,255,0.35) 15%,
+        rgba(255,255,255,0.12) 32%,
+        rgba(255,255,255,0.05) 50%,
+        rgba(255,255,255,0.02) 65%,
+        transparent 80%
+      );
+
+      filter: blur(28px);
+    }
+
+    .vinyl-image {
+      position: relative;
+      z-index: 2;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 50% !important;
+      display: block !important;
+      transform-origin: center center;
+    }
+
+    .vinyl-mini {
+      position: fixed !important;
+      bottom: 20px !important;
+      right: 20px !important;
+      width: 90px !important;
+      height: 90px !important;
+      z-index: 999999 !important;
+      pointer-events: none;
+    }
+
+    .vinyl-hidden {
+      display: none !important;
+    }
+
+    ytmusic-app,
+    ytmusic-player,
+    ytmusic-player-bar,
+    ytmusic-player-page {
+      background: transparent !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  function isPlaying() {
+    return !!document.querySelector('[aria-label="Pause"]');
+  }
+
+  const rotationState = new WeakMap();
+  const lastTime = new WeakMap();
+
+  function animate() {
+    document.querySelectorAll('.vinyl-image').forEach(img => {
+
+      if (!rotationState.has(img)) rotationState.set(img, 0);
+      if (!lastTime.has(img)) lastTime.set(img, performance.now());
+
+      const now = performance.now();
+      const dt = now - lastTime.get(img);
+      lastTime.set(img, now);
+
+      if (isPlaying()) {
+        const angle = rotationState.get(img);
+        const newAngle = angle + dt * 0.03;
+        rotationState.set(img, newAngle);
+        img.style.transform = `rotate(${newAngle}deg)`;
+      } else {
+        img.style.transform = `rotate(${rotationState.get(img)}deg)`;
+      }
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  function isMini(img) {
+    return !!img.closest('ytmusic-player-bar');
+  }
+
+  function findAlbumArt() {
+    const images = document.querySelectorAll('img');
+
+    let best = null;
+    let biggest = 0;
+
+    images.forEach(img => {
+      if (img.classList.contains('vinyl-image')) return;
+
+      const w = img.offsetWidth;
+      const h = img.offsetHeight;
+
+      const square = Math.abs(w - h) < 20;
+      const big = w > 200 && h > 200;
+
+      if (square && big) {
+        const area = w * h;
+        if (area > biggest) {
+          biggest = area;
+          best = img;
+        }
+      }
+    });
+
+    if (best) convert(best);
+  }
+
+  function convert(img) {
+
+    const mini = isMini(img);
+
+    const container = document.createElement('div');
+    container.className = 'vinyl-container';
+
+    container.style.width = img.offsetWidth + 'px';
+    container.style.height = img.offsetHeight + 'px';
+
+    img.parentNode.insertBefore(container, img);
+    container.appendChild(img);
+
+    img.classList.add('vinyl-image');
+
+    const glow = document.createElement('div');
+    glow.className = 'vinyl-glow';
+    container.appendChild(glow);
+
+    // removed vinyl-hole completely (intentionally)
+
+    if (mini) {
+      const clone = container.cloneNode(true);
+      clone.classList.add('vinyl-mini');
+      document.body.appendChild(clone);
+
+      img.classList.add('vinyl-hidden');
+    }
+  }
+
+  window.addEventListener('load', () => {
+    setTimeout(findAlbumArt, 1000);
+    animate();
+  });
+
+  const observer = new MutationObserver(findAlbumArt);
+  observer.observe(document.body, { childList: true, subtree: true });
+
+})();
