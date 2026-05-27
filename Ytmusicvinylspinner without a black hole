@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         YouTube Music Vinyl Spinner v1
+// @name         YouTube Music Vinyl Spinner without a central dot
 // @namespace    http://tampermonkey.net/
 // @version      2.0
 // @description  Make the album cover spin like vinyl on YouTube Music
